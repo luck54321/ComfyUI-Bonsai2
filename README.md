@@ -37,6 +37,38 @@ powershell -ExecutionPolicy Bypass -File .\install_windows.ps1
 
 已有模型时，先将 `model_paths.example.json` 复制为 `model_paths.json`，把示例路径改成自己的绝对路径，再执行安装脚本。安装脚本会验证已有文件，校验成功后直接复用。如果只安装运行程序，可添加 `-SkipModels`。
 
+### 模型路径怎么填写
+
+`model_paths.example.json` 只是配置模板。里面的 `D:\\AI\\models\\Bonsai-2-27B` 是示例，不是模型下载地址，也不要求把模型放在 D 盘。节点和安装脚本只读取同目录下名为 `model_paths.json` 的文件，不会读取 `.example.json`。
+
+**还没下载模型：** 不需要创建配置文件，直接运行安装脚本。默认下载到当前 ComfyUI 的 `models/LLM/Bonsai-2-27B/`，不会使用模板里的 D 盘路径。
+
+**已经下载模型：**
+
+1. 将 `model_paths.example.json` 复制为 `model_paths.json`，放在本节点文件夹内，与 `__init__.py` 同级。注意文件名不能是 `model_paths.json.txt`。
+2. 把 `model_folders` 里的路径改成存放 GGUF 文件的文件夹绝对路径，不要填写某个 `.gguf` 文件的完整路径。
+3. 保存配置，运行安装脚本安装运行程序，然后重启 ComfyUI。已有模型会直接读取，不复制到默认目录；正常安装时，缺失的文件会下载到配置的第一个目录。
+
+例如，模型实际位于 `D:\AI\models\Bonsai-2-27B` 时，配置写为：
+
+```json
+{
+  "model_folders": ["D:\\AI\\models\\Bonsai-2-27B"]
+}
+```
+
+JSON 中反斜杠要写成 `\\`，也可使用单个正斜杠，例如 `D:/AI/models/Bonsai-2-27B`。请保留英文双引号和方括号，不要在 JSON 中加入注释。
+
+这个文件夹应直接包含以下文件，不能再隔一层子文件夹：
+
+```text
+Bonsai-2-27B/
+  Ternary-Bonsai-2-27B-PTQ1_0.gguf
+  Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf
+```
+
+第一个是主模型；第二个是看图需要的图片投影模型，纯文字问答不使用它。模型来源见下方“来源”，安装脚本也可以自动下载。个人配置 `model_paths.json` 已被 Git 排除，不会随源码提交到仓库。
+
 如果 GitHub 下载速度很慢，可加 `-UseGithubMirror`；这是第三方下载中转，安装时仍逐个校验固定 SHA256。模型下载来自 ModelScope 的 prism-ml 同名仓库。下载中断后可重复运行，脚本会继续下载并验证。已有文件校验失败时会保留原文件并报错。
 
 - 模型默认目录：`ComfyUI/models/LLM/Bonsai-2-27B/`。可通过 `model_paths.json` 指定已有模型目录，直接读取，不复制。也可在 ComfyUI 的 extra_model_paths 中配置 `bonsai2`，但安装脚本仅读取 `model_paths.json` 或使用默认目录。
