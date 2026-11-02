@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+/runtime/
+/model_paths.json
+*.gguf
+*.safetensors
+*.log
+*.part
+*.zip
+.env
+.env.*
